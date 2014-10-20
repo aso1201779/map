@@ -46,14 +46,29 @@ function initialize(position) {
     };
     var gmap = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-    //マーカーの設定
+    //マーカーの表示・設定
 	var marker = new google.maps.Marker({
-	  position: myLatlng,
-	  map: gmap
+		position: myLatlng,
+		map:gmap,
+		draggable:false,
+		animation: google.maps.Animation.DROP //バウンドさせるにはBOUNCE
+	});
+
+	// サークル表示・設定（半径差分）
+	var circle = new google.maps.Circle({
+		center:myCenter,		//中心座標
+		map: gmap,				//円を表示するマップ
+		radius: acc,			//地上表面の半径
+		strokeWeight: 3,		//外周線の幅
+		strokeColor: "#cd5c5c", //外周線の色
+		strokeOpacity: 0.5,		//外周線の不透明度
+		fillColor: "#e9967a",	//塗りつぶしの色
+		fillOpacity: 0.5		//塗りつぶしの不透明度
 	});
 
 
 }
+
 </script>
 
 <style type="text/css">
