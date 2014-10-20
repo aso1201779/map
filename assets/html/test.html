@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>googlemap</title>
+
+<!--スマートフォン用に必要-->
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<!--Map表示・位置情報取得 Google API、位置情報を取得しない場合は最後はfalseでOK-->
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript">
+// watchPosion 現在位置を取得
+window.onload = function(){
+	navigator.geolocation.watchPosition(initialize);
+}
+
+function initialize(position) {
+	var lat = position.coords.latitude;
+	var lng = position.coords.longitude;
+	var alt = position.coords.altitude;
+	var acc = position.coords.accuracy;
+	var alc = position.coords.altitudeAccuracy;
+	var hed = position.coords.heading;
+	var spd = position.coords.speed;
+
+	//緯度、経度の指定
+	var myLatlng = new google.maps.LatLng( lat , lng ); //google map 呼び出し
+    var myCenter = myLatlng; //mapの中央を変えたい場合任意の値を入れる
+	//地図オプションの指定
+    var myOptions = {
+		//ズームレベル
+	    zoom: 15,
+	    //地図の中心点
+	    center: myCenter,
+	    //disableDefaultUI:true, //一旦すべてのUIを無効化
+	    //スケールコントロールを有効化
+	    scaleControl:true,
+	    //スケールコントロールの表示位置
+	    scaleControlOptions:{
+	    	position: google.maps.ControlPosition.BOTTOM_LEFT
+	    },
+	    //ストリートビューコントロールを無効化
+	    streetViewControl: false,
+	    //地図タイプコントロールの無効化
+	    mapTypeControl:false,
+	    //地図タイプ
+	    mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var gmap = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+    //マーカーの設定
+	var marker = new google.maps.Marker({
+	  position: myLatlng,
+	  map: gmap
+	});
+
+
+}
+</script>
+
+<style type="text/css">
+<!--
+html, body {
+    margin:0px;
+    padding:0px;
+    height: 100%;
+}
+#map_canvas {
+    height: 100%;
+}
+-->
+</style>
+
+<body>
+<div id="map_canvas"></div>
+</body>
