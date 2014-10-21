@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -19,10 +21,12 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
 
 	private WebView mWebView;
+	private LocationManager mLocationManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mLocationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		setContentView(R.layout.activity_main);
 		mWebView = (WebView)findViewById(R.id.webview);
 		mWebView.setWebViewClient(new WebViewClient(){
@@ -72,6 +76,21 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
+	protected void onResume() {
+		// TODO 自動生成されたメソッド・スタブ
+		if(mLocationManager != null){
+			mLocationManager.requestLocationUpdates(
+					LocationManager.GPS_PROVIDER,
+					LocationManager.NETWORK_PROVIDER,
+					5000,
+					0,
+					this);
+		}
+		chkGpsService();
+		super.onResume();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -100,6 +119,44 @@ public class MainActivity extends Activity {
 			return info.isConnected();
 		}else{
 			return false;
+		}
+	}
+
+	//GPSが有効かチェック
+	//無効になっていれば、設定画面の表示確認ダイアログ
+	private void chkGpsService(){
+		//GPSセンサーが利用可能か？
+		if(!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setMessage("GPSが有効になっていません。\n有効化しますか？")
+			.setCancelable(false)
+
+			//GPS設定画面起動用ボタンとイベントの定義
+			.setPositiveButton("GPS設定起動",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							// TODO 自動生成されたメソッド・スタブ
+							Intent callGPSSettingIntent = new Intent(
+									android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+							startActivity(callGPSSettingIntent);
+						}
+			});
+			//キャンセルボタン処理
+			alertDialogBuilder.setNegativeButton("キャンセル",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							// TODO 自動生成されたメソッド・スタブ
+							dialog.cancel();
+						}
+					});
+			AlertDialog alert = alertDialogBuilder.create();
+			//設定画面へ移動するかの問い合わせダイアログを表示
+			alert.show();
 		}
 	}
 
