@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,7 +20,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
 
 	private WebView mWebView;
 	private LocationManager mLocationManager;
@@ -26,6 +28,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//ロケーションマネージャを取得
 		mLocationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		setContentView(R.layout.activity_main);
 		mWebView = (WebView)findViewById(R.id.webview);
@@ -39,40 +42,6 @@ public class MainActivity extends Activity {
 
 		});
 
-		mWebView.setWebChromeClient(new WebChromeClient(){
-
-			@Override
-			public void onGeolocationPermissionsShowPrompt(String origin, Callback callback) {
-				// TODO 自動生成されたメソッド・スタブ
-				super.onGeolocationPermissionsShowPrompt(origin, callback);
-				//常に位置情報を取得する
-				callback.invoke(origin, true, false);
-			}
-		    });
-
-		findViews();//viewの読み込み
-
-		if(netWorkCheck(this.getApplicationContext()) ){
-			WebSettings settings = mWebView.getSettings();
-			settings.setJavaScriptEnabled(true);
-			//Geolocationを有効化
-			settings.setGeolocationEnabled(true);
-			mWebView.loadUrl("file:///android_asset/html/test.html");//サイトの読み込み
-		}else{
-			// 確認ダイアログの生成
-	        AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
-	        alertDlg.setTitle("エラー");
-	        alertDlg.setMessage("メッセージ");
-	        alertDlg.setPositiveButton(
-	            "OK",
-	            new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface dialog, int which) {
-	                    // OK ボタンクリック処理
-	                }
-	            });
-	        //表示
-	        alertDlg.create().show();
-		}
 	}
 
 	@Override
@@ -81,12 +50,44 @@ public class MainActivity extends Activity {
 		if(mLocationManager != null){
 			mLocationManager.requestLocationUpdates(
 					LocationManager.GPS_PROVIDER,
-					LocationManager.NETWORK_PROVIDER,
+					//LocationManager.NETWORK_PROVIDER,
 					5000,
 					0,
 					this);
 		}
 		chkGpsService();
+		mWebView.setWebChromeClient(new WebChromeClient(){
+		@Override
+		public void onGeolocationPermissionsShowPrompt(String origin, Callback callback) {
+			// TODO 自動生成されたメソッド・スタブ
+			super.onGeolocationPermissionsShowPrompt(origin, callback);
+			//常に位置情報を取得する
+			callback.invoke(origin, true, false);
+		}
+	    });
+
+		findViews();//viewの読み込み
+			if(netWorkCheck(this.getApplicationContext()) ){
+				WebSettings settings = mWebView.getSettings();
+				settings.setJavaScriptEnabled(true);
+				//Geolocationを有効化
+				settings.setGeolocationEnabled(true);
+				mWebView.loadUrl("file:///android_asset/html/test.html");//サイトの読み込み
+			}else{
+				// 確認ダイアログの生成
+		        AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
+		        alertDlg.setTitle("エラー");
+		        alertDlg.setMessage("メッセージ");
+		        alertDlg.setPositiveButton(
+		            "OK",
+		            new DialogInterface.OnClickListener() {
+		                public void onClick(DialogInterface dialog, int which) {
+		                    // OK ボタンクリック処理
+		                }
+		            });
+		        //表示
+		        alertDlg.create().show();
+			}
 		super.onResume();
 	}
 
@@ -147,7 +148,6 @@ public class MainActivity extends Activity {
 			//キャンセルボタン処理
 			alertDialogBuilder.setNegativeButton("キャンセル",
 					new DialogInterface.OnClickListener() {
-
 						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							// TODO 自動生成されたメソッド・スタブ
@@ -158,6 +158,30 @@ public class MainActivity extends Activity {
 			//設定画面へ移動するかの問い合わせダイアログを表示
 			alert.show();
 		}
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO 自動生成されたメソッド・スタブ
+
 	}
 
 }
