@@ -10,9 +10,9 @@
 // watchPosion 現在位置を取得
 window.onload = function(){
 	// 位置情報取得のオプション。高精度にする
-	//var position_options = {
-	//	enableHightAccuracy: true
-	//};
+	var position_options = {
+		enableHightAccuracy: true
+	};
 	navigator.geolocation.watchPosition(initialize);
 }
 
@@ -26,7 +26,7 @@ function initialize(position) {
 	var spd = position.coords.speed;
 
 	//緯度、経度の指定
-	if(lat != null && lng != null && acc != null){}
+	if(lat != null && lng != null && acc != null){
 		var myLatlng = new google.maps.LatLng( lat , lng ); //google map 呼び出し
 	    var myCenter = myLatlng; //mapの中央を変えたい場合任意の値を入れる
 	}else{
