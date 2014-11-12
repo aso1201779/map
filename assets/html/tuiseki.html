@@ -10,8 +10,6 @@
 var label, trigger, watcher, lastPos, map, gmap, coord, geocoder, startMarker, currentMarker, posHistory;
 function triggerWatch() {
     watcher = navigator.geolocation.watchPosition(moveTo, function(error){alert(error.message);}, {enableHighAccuracy: true});
-    trigger.innerHTML = '追跡終了';
-    label.innerHTML = '追跡中...';
 }
 
 function moveTo(pos) {
@@ -53,6 +51,19 @@ function moveTo(pos) {
     }
     currentMarker.setPosition(coord);
   }
+
+//サークル表示・設定（半径差分）
+	var circle = new google.maps.Circle({
+		center:coord,		//中心座標
+		map: gmap,				//円を表示するマップ
+		radius: pos.coords.accuracy,			//地上表面の半径
+		strokeWeight: 3,		//外周線の幅
+		strokeColor: "#cd5c5c", //外周線の色
+		strokeOpacity: 0.5,		//外周線の不透明度
+		fillColor: "#e9967a",	//塗りつぶしの色
+		fillOpacity: 0.5		//塗りつぶしの不透明度
+	});
+
   geocoder.geocode({language: 'ja', location: coord}, function(result){
     var address = result.select(function(value, index) {
       return value.types.include('sublocality');
@@ -68,7 +79,6 @@ function moveTo(pos) {
       if (!value.types.include('country')) { result += value.long_name; }
       return result;
     });
-    label.innerHTML = '追跡中（' + address + '付近）...';
   });
 }
 
@@ -77,15 +87,28 @@ google.maps.event.addDomListener(window, 'load', function(){
   if (navigator.geolocation) {
     geocoder = new google.maps.Geocoder();
     lastPos  = null;
-    coord    = new google.maps.LatLng(35.7022592 , 139.5768798);
+    coord    = new google.maps.LatLng(33.590002 , 130.420622);
     gmap     = new google.maps.Map(
       map, {
-        zoom:         18,
-        center:       coord,
-        mapTypeId:    google.maps.MapTypeId.ROADMAP,
-        scaleControl: true,
+        zoom: 15,
+	    //地図の中心点
+	    center: coord,
+	    //disableDefaultUI:true, //一旦すべてのUIを無効化
+	    //スケールコントロールを有効化
+	    scaleControl:true,
+	    //スケールコントロールの表示位置
+	    scaleControlOptions:{
+	    	position: google.maps.ControlPosition.BOTTOM_LEFT
+	    },
+	    //ストリートビューコントロールを無効化
+	    streetViewControl: false,
+	    //地図タイプコントロールの無効化
+	    mapTypeControl:false,
+	    //地図タイプ
+	    mapTypeId: google.maps.MapTypeId.ROADMAP,
       }
     );
+
   } else {
     var msg = '';
     msg += 'お使いのブラウザは Geolocation API に対応していません。以下のブラウザでアクセスすれば動くかもしれません。';
