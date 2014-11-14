@@ -13,10 +13,10 @@ window.onload = function(){
 }
 
 function moveTo(pos) {
-	coord = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+
   if (lastPos != null) {
     if (lastPos.latitude == pos.coords.latitude && lastPos.longitude == pos.coords.longitude) { return; }
-    else{
+  else{
     coord = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
     if (posHistory == null) {
       posHistory = new google.maps.MVCArray([coord]);
@@ -30,6 +30,8 @@ function moveTo(pos) {
       posHistory.push(coord);
     }
   }
+  }else{
+	  coord = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
   }
   lastPos = pos.coords;
   gmap.panTo(coord);
@@ -52,21 +54,23 @@ function moveTo(pos) {
         flat:      false,
         visible:   true
       });
+    //サークル表示・設定（半径差分）
+  	var circle = new google.maps.Circle({
+  		center:coord,		//中心座標
+  		map: gmap,				//円を表示するマップ
+  		radius: pos.coords.accuracy,			//地上表面の半径
+  		strokeWeight: 3,		//外周線の幅
+  		strokeColor: "#cd5c5c", //外周線の色
+  		strokeOpacity: 0.5,		//外周線の不透明度
+  		fillColor: "#e9967a",	//塗りつぶしの色
+  		fillOpacity: 0.5		//塗りつぶしの不透明度
+  	});
     }
     currentMarker.setPosition(coord);
+
   }
 
-//サークル表示・設定（半径差分）
-	var circle = new google.maps.Circle({
-		center:coord,		//中心座標
-		map: gmap,				//円を表示するマップ
-		radius: pos.coords.accuracy,			//地上表面の半径
-		strokeWeight: 3,		//外周線の幅
-		strokeColor: "#cd5c5c", //外周線の色
-		strokeOpacity: 0.5,		//外周線の不透明度
-		fillColor: "#e9967a",	//塗りつぶしの色
-		fillOpacity: 0.5		//塗りつぶしの不透明度
-	});
+
 
   geocoder.geocode({language: 'ja', location: coord}, function(result){
     var address = result.select(function(value, index) {
@@ -92,9 +96,10 @@ google.maps.event.addDomListener(window, 'load', function(){
     geocoder = new google.maps.Geocoder();
     lastPos  = null;
     coord    = new google.maps.LatLng(33.590002 , 130.420622);
-    gmap     = new google.maps.Map(
-      map, {
-        zoom: 15,
+  //地図オプションの指定
+    var myOptions = {
+		//ズームレベル
+	    zoom: 15,
 	    //地図の中心点
 	    center: coord,
 	    //disableDefaultUI:true, //一旦すべてのUIを無効化
@@ -109,9 +114,9 @@ google.maps.event.addDomListener(window, 'load', function(){
 	    //地図タイプコントロールの無効化
 	    mapTypeControl:false,
 	    //地図タイプ
-	    mapTypeId: google.maps.MapTypeId.ROADMAP,
-      }
-    );
+	    mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    gmap = new google.maps.Map(document.getElementById("map"), myOptions);
 
   } else {
     var msg = '';

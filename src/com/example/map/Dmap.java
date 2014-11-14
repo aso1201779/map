@@ -14,13 +14,15 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.GeolocationPermissions.Callback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
-public class MainActivity extends Activity implements LocationListener {
+public class Dmap extends Activity implements LocationListener ,View.OnClickListener{
 
 	private WebView mWebView;
 	private LocationManager mLocationManager;
@@ -42,10 +44,17 @@ public class MainActivity extends Activity implements LocationListener {
 
 		});
 
+
+
 	}
 
 	@Override
 	protected void onResume() {
+
+		Button MapEndBtn = (Button)findViewById(R.id.MapEndBtn);
+		MapEndBtn.setOnClickListener(this);
+
+
 		// TODO 自動生成されたメソッド・スタブ
 		if(mLocationManager != null){
 			mLocationManager.requestLocationUpdates(
@@ -182,6 +191,15 @@ public class MainActivity extends Activity implements LocationListener {
 	public void onProviderDisabled(String provider) {
 		// TODO 自動生成されたメソッド・スタブ
 
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO 自動生成されたメソッド・スタブ
+		switch(v.getId()){
+			case R.id.MapEndBtn:
+				break;
+		}
 	}
 
 }
