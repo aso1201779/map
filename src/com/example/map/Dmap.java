@@ -1,17 +1,24 @@
 package com.example.map;
 
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Picture;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,9 +50,6 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 			}
 
 		});
-
-
-
 	}
 
 	@Override
@@ -211,6 +215,43 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 								// TODO 自動生成されたメソッド・スタブ
 								Intent intent = new Intent(Dmap.this,D_entry.class);
 								startActivity(intent);
+
+								// WebViewのキャプチャを取る
+		                        Picture pictureObj = mWebView.capturePicture();
+
+		                        // 取ったキャプチャの幅と高さを元に
+		                        // 新しいBitmapを生成する。
+		                        Bitmap  bitmap = Bitmap.createBitmap(
+		                                        pictureObj.getWidth(),
+		                                        pictureObj.getHeight(),
+		                                        Bitmap.Config.ARGB_8888);
+
+		                        // canvasを通してBitmapに書き込む
+		                        Canvas canvas = new Canvas(bitmap);
+		                        pictureObj.draw(canvas);
+
+		                        // Bitmapをファイルシステムに書き出す。
+		                        FileOutputStream fos = null;
+		                        try {
+		                                String path =
+		                                        Environment.getExternalStorageDirectory().toString() +
+		                                        "/test.jpg";
+
+		                                fos = new FileOutputStream(path);
+		                                if ( fos != null )
+		                                {
+		                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+		                                        fos.close();
+		                                }
+		                        } catch( Exception e ){
+		                                e.printStackTrace();
+
+		                        } finally {
+		                                try {
+		                                        if(fos != null) fos.close();
+		                                } catch (IOException e) {
+		                                }
+		                        }
 							}
 				});
 				//キャンセルボタン処理
