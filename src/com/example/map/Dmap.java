@@ -32,7 +32,7 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 		super.onCreate(savedInstanceState);
 		//ロケーションマネージャを取得
 		mLocationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.dmap);
 		mWebView = (WebView)findViewById(R.id.webview);
 		mWebView.setWebViewClient(new WebViewClient(){
 
@@ -198,6 +198,33 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 		// TODO 自動生成されたメソッド・スタブ
 		switch(v.getId()){
 			case R.id.MapEndBtn:
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+				alertDialogBuilder.setMessage("ドライブを終了しますか？")
+				.setCancelable(false)
+
+				//GPS設定画面起動用ボタンとイベントの定義
+				.setPositiveButton("終了",
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO 自動生成されたメソッド・スタブ
+								Intent intent = new Intent(Dmap.this,D_entry.class);
+								startActivity(intent);
+							}
+				});
+				//キャンセルボタン処理
+				alertDialogBuilder.setNegativeButton("キャンセル",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO 自動生成されたメソッド・スタブ
+								dialog.cancel();
+							}
+						});
+				AlertDialog alert = alertDialogBuilder.create();
+				//設定画面へ移動するかの問い合わせダイアログを表示
+				alert.show();
 				break;
 		}
 	}
