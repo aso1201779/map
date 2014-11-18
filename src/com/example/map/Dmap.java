@@ -1,24 +1,29 @@
 package com.example.map;
 
 
+import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Picture;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.Media;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +38,7 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 
 	private WebView mWebView;
 	private LocationManager mLocationManager;
+	private Uri bitmapUri;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -213,45 +219,51 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								// TODO 自動生成されたメソッド・スタブ
-								Intent intent = new Intent(Dmap.this,D_entry.class);
-								startActivity(intent);
-
-								// WebViewのキャプチャを取る
-		                        Picture pictureObj = mWebView.capturePicture();
 
 		                        // 取ったキャプチャの幅と高さを元に
 		                        // 新しいBitmapを生成する。
 		                        Bitmap  bitmap = Bitmap.createBitmap(
-		                                        pictureObj.getWidth(),
-		                                        pictureObj.getHeight(),
+		                                        mWebView.getWidth(),
+		                                        mWebView.getHeight(),
 		                                        Bitmap.Config.ARGB_8888);
+								final Canvas c =new Canvas(bitmap);
+								mWebView.draw(c);
+								Log.d("キャプチャ","成功");
 
-		                        // canvasを通してBitmapに書き込む
-		                        Canvas canvas = new Canvas(bitmap);
-		                        pictureObj.draw(canvas);
+								// 新しいフォルダへのパス
+						        String folderPath = Environment.getExternalStorageDirectory()
+						                + "/NewFolder/";
+						        File folder = new File(folderPath);
+						        Log.d("フォルダパス","インポート");
+						        if (!folder.exists()) {
+						            folder.mkdirs();
+						        }
+						        // NewFolderに保存する画像のパス
+						        File file = new File(folder, "Image.jpg");
+						        Log.d("画像パス","インポート");
+						        if (file.exists()) {
+						            file.delete();
+						        }
 
-		                        // Bitmapをファイルシステムに書き出す。
-		                        FileOutputStream fos = null;
-		                        try {
-		                                String path =
-		                                        Environment.getExternalStorageDirectory().toString() +
-		                                        "/test.jpg";
+						        try {
+						        	Log.d("保存","成功");
+						            FileOutputStream out = new FileOutputStream(file);
+						            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+						            out.flush();
+						            out.close();
+						        } catch (Exception e) {
+						            e.printStackTrace();
+						        }
 
-		                                fos = new FileOutputStream(path);
-		                                if ( fos != null )
-		                                {
-		                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-		                                        fos.close();
-		                                }
-		                        } catch( Exception e ){
-		                                e.printStackTrace();
+						        try {
+						            // これをしないと、新規フォルダは端末をシャットダウンするまで更新されない
+						            showFolder(file);
+						        } catch (Exception e) {
+						            e.printStackTrace();
+						        }
 
-		                        } finally {
-		                                try {
-		                                        if(fos != null) fos.close();
-		                                } catch (IOException e) {
-		                                }
-		                        }
+		                        Intent intent = new Intent(Dmap.this,D_entry.class);
+								startActivity(intent);
 							}
 				});
 				//キャンセルボタン処理
@@ -269,5 +281,22 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 				break;
 		}
 	}
+	// ContentProviderに新しいイメージファイルが作られたことを通知する
+    private void showFolder(File path) throws Exception {
+        try {
+            ContentValues values = new ContentValues();
+            ContentResolver contentResolver = getApplicationContext()
+                    .getContentResolver();
+            values.put(Images.Media.MIME_TYPE, "image/jpeg");
+            values.put(Images.Media.DATE_MODIFIED,
+                    System.currentTimeMillis() / 1000);
+            values.put(Images.Media.SIZE, path.length());
+            values.put(Images.Media.TITLE, path.getName());
+            values.put(Images.Media.DATA, path.getPath());
+            contentResolver.insert(Media.EXTERNAL_CONTENT_URI, values);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
 }
