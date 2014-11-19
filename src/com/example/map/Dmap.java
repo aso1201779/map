@@ -238,8 +238,9 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 						        if (!folder.exists()) {
 						            folder.mkdirs();
 						        }
+
 						        // NewFolderに保存する画像のパス
-						        File file = new File(folder, "Image.jpg");
+						        File file = new File(folder,System.currentTimeMillis() + ".jpg");
 						        Log.d("画像パス","インポート");
 						        if (file.exists()) {
 						            file.delete();
