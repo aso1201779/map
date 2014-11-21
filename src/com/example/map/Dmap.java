@@ -34,7 +34,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
-public class Dmap extends Activity implements LocationListener ,View.OnClickListener{
+public class Dmap extends Activity implements LocationListener ,View.OnClickListener, UploadAsyncTaskCallback{
 
 	private WebView mWebView;
 	private LocationManager mLocationManager;
@@ -238,9 +238,9 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 						        if (!folder.exists()) {
 						            folder.mkdirs();
 						        }
-
+						        String filename = System.currentTimeMillis() + ".jpg";
 						        // NewFolderに保存する画像のパス
-						        File file = new File(folder,System.currentTimeMillis() + ".jpg");
+						        File file = new File(folder,filename);
 						        Log.d("画像パス","インポート");
 						        if (file.exists()) {
 						            file.delete();
@@ -262,9 +262,10 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
 						        } catch (Exception e) {
 						            e.printStackTrace();
 						        }
-
-		                        Intent intent = new Intent(Dmap.this,D_entry.class);
-								startActivity(intent);
+						        String filepath = folderPath +  filename;
+						        upload(filepath,filename);
+						        
+		                        
 							}
 				});
 				//キャンセルボタン処理
@@ -299,5 +300,24 @@ public class Dmap extends Activity implements LocationListener ,View.OnClickList
             throw e;
         }
     }
+
+	@Override
+	public void onSuccessUpload(String result) {
+		// TODO 自動生成されたメソッド・スタブ
+		Intent intent = new Intent(Dmap.this,D_entry.class);
+		startActivity(intent);
+	}
+
+	@Override
+	public void onFailedUpload() {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	public void upload(String... str){
+		//Task生成
+	    UploadAsyncTask up = new UploadAsyncTask(this,this);
+	    up.execute(str[0],str[1]);
+	}
 
 }
